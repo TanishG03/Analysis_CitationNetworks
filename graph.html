@@ -1,0 +1,168 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "font": {"color": "white"}, "id": 212044, "label": "212044\nDate: ", "shape": "dot", "title": ""}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9607217, "label": "9607217\nDate: 1996-07-02", "shape": "dot", "title": "1996-07-02"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9608434, "label": "9608434\nDate: 1996-08-25", "shape": "dot", "title": "1996-08-25"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9609207, "label": "9609207\nDate: 1996-08-30", "shape": "dot", "title": "1996-08-30"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9610480, "label": "9610480\nDate: 1996-10-25", "shape": "dot", "title": "1996-10-25"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9702354, "label": "9702354\nDate: 1997-02-17", "shape": "dot", "title": "1997-02-17"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9703432, "label": "9703432\nDate: 1997-03-26", "shape": "dot", "title": "1997-03-26"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9711485, "label": "9711485\nDate: 1997-11-26", "shape": "dot", "title": "1997-11-26"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9711488, "label": "9711488\nDate: 1997-11-27", "shape": "dot", "title": "1997-11-27"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9812449, "label": "9812449\nDate: 1998-12-20", "shape": "dot", "title": "1998-12-20"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9901384, "label": "9901384\nDate: 1999-01-22", "shape": "dot", "title": "1999-01-22"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9912376, "label": "9912376\nDate: 1999-12-16", "shape": "dot", "title": "1999-12-16"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 208124, "label": "208124\nDate: ", "shape": "dot", "title": ""}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 1119, "label": "1119\nDate: 2000-01-13", "shape": "dot", "title": "2000-01-13"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 101300, "label": "101300\nDate: 2001-01-26", "shape": "dot", "title": "2001-01-26"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102071, "label": "102071\nDate: 2001-02-06", "shape": "dot", "title": "2001-02-06"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 108213, "label": "108213\nDate: 2001-08-25", "shape": "dot", "title": "2001-08-25"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 111066, "label": "111066\nDate: 2001-11-06", "shape": "dot", "title": "2001-11-06"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 111343, "label": "111343\nDate: 2001-11-27", "shape": "dot", "title": "2001-11-27"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 112166, "label": "112166\nDate: 2001-12-12", "shape": "dot", "title": "2001-12-12"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 201091, "label": "201091\nDate: 2002-01-11", "shape": "dot", "title": "2002-01-11"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 204056, "label": "204056\nDate: ", "shape": "dot", "title": ""}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 206309, "label": "206309\nDate: ", "shape": "dot", "title": ""}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9208213, "label": "9208213\nDate: 1992-08-06", "shape": "dot", "title": "1992-08-06"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9409254, "label": "9409254\nDate: 1994-09-08", "shape": "dot", "title": "1994-09-08"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9504220, "label": "9504220\nDate: 1995-04-04", "shape": "dot", "title": "1995-04-04"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9508347, "label": "9508347\nDate: 1995-08-22", "shape": "dot", "title": "1995-08-22"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9510301, "label": "9510301\nDate: 1995-10-16", "shape": "dot", "title": "1995-10-16"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9603428, "label": "9603428\nDate: 1996-03-28", "shape": "dot", "title": "1996-03-28"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9605439, "label": "9605439\nDate: 1996-05-30", "shape": "dot", "title": "1996-05-30"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9707515, "label": "9707515\nDate: 1997-07-30", "shape": "dot", "title": "1997-07-30"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9812522, "label": "9812522\nDate: 1998-12-30", "shape": "dot", "title": "1998-12-30"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 108200, "label": "108200\nDate: 2001-08-23", "shape": "dot", "title": "2001-08-23"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102122, "label": "102122\nDate: 2001-02-09", "shape": "dot", "title": "2001-02-09"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102145, "label": "102145\nDate: 2001-02-12", "shape": "dot", "title": "2001-02-12"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102146, "label": "102146\nDate: 2001-02-12", "shape": "dot", "title": "2001-02-12"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102147, "label": "102147\nDate: 2001-02-12", "shape": "dot", "title": "2001-02-12"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102157, "label": "102157\nDate: 2001-02-13", "shape": "dot", "title": "2001-02-13"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102176, "label": "102176\nDate: 2001-02-14", "shape": "dot", "title": "2001-02-14"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102180, "label": "102180\nDate: 2001-02-14", "shape": "dot", "title": "2001-02-14"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102204, "label": "102204\nDate: 2001-02-16", "shape": "dot", "title": "2001-02-16"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102211, "label": "102211\nDate: 2001-02-16", "shape": "dot", "title": "2001-02-16"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102238, "label": "102238\nDate: 2001-02-19", "shape": "dot", "title": "2001-02-19"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102243, "label": "102243\nDate: 2001-02-19", "shape": "dot", "title": "2001-02-19"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102255, "label": "102255\nDate: 2001-02-20", "shape": "dot", "title": "2001-02-20"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102259, "label": "102259\nDate: 2001-02-21", "shape": "dot", "title": "2001-02-21"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102297, "label": "102297\nDate: 2001-02-23", "shape": "dot", "title": "2001-02-23"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102304, "label": "102304\nDate: 2001-02-24", "shape": "dot", "title": "2001-02-24"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102312, "label": "102312\nDate: 2001-02-26", "shape": "dot", "title": "2001-02-26"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102315, "label": "102315\nDate: 2001-02-26", "shape": "dot", "title": "2001-02-26"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102331, "label": "102331\nDate: 2001-02-27", "shape": "dot", "title": "2001-02-27"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 102344, "label": "102344\nDate: 2001-02-28", "shape": "dot", "title": "2001-02-28"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 103028, "label": "103028\nDate: 2001-03-02", "shape": "dot", "title": "2001-03-02"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 103034, "label": "103034\nDate: 2001-03-02", "shape": "dot", "title": "2001-03-02"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 103048, "label": "103048\nDate: 2001-03-05", "shape": "dot", "title": "2001-03-05"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 103050, "label": "103050\nDate: 2001-03-05", "shape": "dot", "title": "2001-03-05"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 103064, "label": "103064\nDate: 2001-03-06", "shape": "dot", "title": "2001-03-06"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 103067, "label": "103067\nDate: 2001-03-06", "shape": "dot", "title": "2001-03-06"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 103069, "label": "103069\nDate: 2001-03-07", "shape": "dot", "title": "2001-03-07"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 103083, "label": "103083\nDate: 2001-03-08", "shape": "dot", "title": "2001-03-08"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 103126, "label": "103126\nDate: 2001-03-12", "shape": "dot", "title": "2001-03-12"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 103223, "label": "103223\nDate: 2001-03-20", "shape": "dot", "title": "2001-03-20"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 103280, "label": "103280\nDate: 2001-03-27", "shape": "dot", "title": "2001-03-27"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 104141, "label": "104141\nDate: 2001-04-14", "shape": "dot", "title": "2001-04-14"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 104225, "label": "104225\nDate: 2001-04-23", "shape": "dot", "title": "2001-04-23"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 105014, "label": "105014\nDate: 2001-05-02", "shape": "dot", "title": "2001-05-02"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9304312, "label": "9304312\nDate: 1993-04-28", "shape": "dot", "title": "1993-04-28"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9609290, "label": "9609290\nDate: 1996-09-09", "shape": "dot", "title": "1996-09-09"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9808388, "label": "9808388\nDate: 1998-08-24", "shape": "dot", "title": "1998-08-24"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9902406, "label": "9902406\nDate: 1999-02-19", "shape": "dot", "title": "1999-02-19"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 112215, "label": "112215\nDate: 2001-12-16", "shape": "dot", "title": "2001-12-16"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 7358, "label": "7358\nDate: 2000-07-31", "shape": "dot", "title": "2000-07-31"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 12290, "label": "12290\nDate: 2000-12-21", "shape": "dot", "title": "2000-12-21"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9607235, "label": "9607235\nDate: 1996-07-04", "shape": "dot", "title": "1996-07-04"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9304225, "label": "9304225\nDate: 1993-04-06", "shape": "dot", "title": "1993-04-06"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9307247, "label": "9307247\nDate: 1993-07-11", "shape": "dot", "title": "1993-07-11"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9307291, "label": "9307291\nDate: 1993-07-18", "shape": "dot", "title": "1993-07-18"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9308246, "label": "9308246\nDate: 1993-08-08", "shape": "dot", "title": "1993-08-08"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9308287, "label": "9308287\nDate: 1993-08-17", "shape": "dot", "title": "1993-08-17"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9308288, "label": "9308288\nDate: 1993-08-17", "shape": "dot", "title": "1993-08-17"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9311325, "label": "9311325\nDate: 1993-11-21", "shape": "dot", "title": "1993-11-21"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9312359, "label": "9312359\nDate: 1993-12-30", "shape": "dot", "title": "1993-12-30"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9402288, "label": "9402288\nDate: 1994-02-15", "shape": "dot", "title": "1994-02-15"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9402326, "label": "9402326\nDate: 1994-02-21", "shape": "dot", "title": "1994-02-21"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9403313, "label": "9403313\nDate: 1994-03-19", "shape": "dot", "title": "1994-03-19"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9405207, "label": "9405207\nDate: 1994-05-03", "shape": "dot", "title": "1994-05-03"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9405410, "label": "9405410\nDate: 1994-05-30", "shape": "dot", "title": "1994-05-30"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9406251, "label": "9406251\nDate: 1994-06-08", "shape": "dot", "title": "1994-06-08"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9409440, "label": "9409440\nDate: 1994-09-29", "shape": "dot", "title": "1994-09-29"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9502346, "label": "9502346\nDate: 1995-02-20", "shape": "dot", "title": "1995-02-20"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9503486, "label": "9503486\nDate: 1995-03-31", "shape": "dot", "title": "1995-03-31"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9503492, "label": "9503492\nDate: 1995-04-01", "shape": "dot", "title": "1995-04-01"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9506476, "label": "9506476\nDate: 1995-07-01", "shape": "dot", "title": "1995-07-01"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9507283, "label": "9507283\nDate: 1995-07-11", "shape": "dot", "title": "1995-07-11"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9602262, "label": "9602262\nDate: 1996-02-08", "shape": "dot", "title": "1996-02-08"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9603314, "label": "9603314\nDate: 1996-03-14", "shape": "dot", "title": "1996-03-14"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9604225, "label": "9604225\nDate: 1996-04-03", "shape": "dot", "title": "1996-04-03"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": 9605201, "label": "9605201\nDate: 1996-05-02", "shape": "dot", "title": "1996-05-02"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": 212044, "to": 9607217}, {"arrows": "to", "from": 212044, "to": 9608434}, {"arrows": "to", "from": 212044, "to": 9609207}, {"arrows": "to", "from": 212044, "to": 9610480}, {"arrows": "to", "from": 212044, "to": 9702354}, {"arrows": "to", "from": 212044, "to": 9703432}, {"arrows": "to", "from": 212044, "to": 9711485}, {"arrows": "to", "from": 212044, "to": 9711488}, {"arrows": "to", "from": 212044, "to": 9812449}, {"arrows": "to", "from": 212044, "to": 9901384}, {"arrows": "to", "from": 212044, "to": 9912376}, {"arrows": "to", "from": 208124, "to": 1119}, {"arrows": "to", "from": 208124, "to": 101300}, {"arrows": "to", "from": 208124, "to": 102071}, {"arrows": "to", "from": 208124, "to": 108213}, {"arrows": "to", "from": 208124, "to": 111066}, {"arrows": "to", "from": 208124, "to": 111343}, {"arrows": "to", "from": 208124, "to": 112166}, {"arrows": "to", "from": 208124, "to": 201091}, {"arrows": "to", "from": 208124, "to": 204056}, {"arrows": "to", "from": 208124, "to": 206309}, {"arrows": "to", "from": 208124, "to": 9208213}, {"arrows": "to", "from": 208124, "to": 9409254}, {"arrows": "to", "from": 208124, "to": 9504220}, {"arrows": "to", "from": 208124, "to": 9508347}, {"arrows": "to", "from": 208124, "to": 9510301}, {"arrows": "to", "from": 208124, "to": 9603428}, {"arrows": "to", "from": 208124, "to": 9605439}, {"arrows": "to", "from": 208124, "to": 9608434}, {"arrows": "to", "from": 208124, "to": 9609207}, {"arrows": "to", "from": 208124, "to": 9610480}, {"arrows": "to", "from": 208124, "to": 9702354}, {"arrows": "to", "from": 208124, "to": 9707515}, {"arrows": "to", "from": 208124, "to": 9711485}, {"arrows": "to", "from": 208124, "to": 9711488}, {"arrows": "to", "from": 208124, "to": 9812522}, {"arrows": "to", "from": 208124, "to": 9912376}, {"arrows": "to", "from": 108200, "to": 102122}, {"arrows": "to", "from": 108200, "to": 102145}, {"arrows": "to", "from": 108200, "to": 102146}, {"arrows": "to", "from": 108200, "to": 102147}, {"arrows": "to", "from": 108200, "to": 102157}, {"arrows": "to", "from": 108200, "to": 102176}, {"arrows": "to", "from": 108200, "to": 102180}, {"arrows": "to", "from": 108200, "to": 102204}, {"arrows": "to", "from": 108200, "to": 102211}, {"arrows": "to", "from": 108200, "to": 102238}, {"arrows": "to", "from": 108200, "to": 102243}, {"arrows": "to", "from": 108200, "to": 102255}, {"arrows": "to", "from": 108200, "to": 102259}, {"arrows": "to", "from": 108200, "to": 102297}, {"arrows": "to", "from": 108200, "to": 102304}, {"arrows": "to", "from": 108200, "to": 102312}, {"arrows": "to", "from": 108200, "to": 102315}, {"arrows": "to", "from": 108200, "to": 102331}, {"arrows": "to", "from": 108200, "to": 102344}, {"arrows": "to", "from": 108200, "to": 103028}, {"arrows": "to", "from": 108200, "to": 103034}, {"arrows": "to", "from": 108200, "to": 103048}, {"arrows": "to", "from": 108200, "to": 103050}, {"arrows": "to", "from": 108200, "to": 103064}, {"arrows": "to", "from": 108200, "to": 103067}, {"arrows": "to", "from": 108200, "to": 103069}, {"arrows": "to", "from": 108200, "to": 103083}, {"arrows": "to", "from": 108200, "to": 103126}, {"arrows": "to", "from": 108200, "to": 103223}, {"arrows": "to", "from": 108200, "to": 103280}, {"arrows": "to", "from": 108200, "to": 104141}, {"arrows": "to", "from": 108200, "to": 104225}, {"arrows": "to", "from": 108200, "to": 105014}, {"arrows": "to", "from": 108200, "to": 9304312}, {"arrows": "to", "from": 108200, "to": 9609290}, {"arrows": "to", "from": 108200, "to": 9808388}, {"arrows": "to", "from": 108200, "to": 9902406}, {"arrows": "to", "from": 112215, "to": 7358}, {"arrows": "to", "from": 112215, "to": 12290}, {"arrows": "to", "from": 9607235, "to": 9304225}, {"arrows": "to", "from": 9607235, "to": 9307247}, {"arrows": "to", "from": 9607235, "to": 9307291}, {"arrows": "to", "from": 9607235, "to": 9308246}, {"arrows": "to", "from": 9607235, "to": 9308287}, {"arrows": "to", "from": 9607235, "to": 9308288}, {"arrows": "to", "from": 9607235, "to": 9311325}, {"arrows": "to", "from": 9607235, "to": 9312359}, {"arrows": "to", "from": 9607235, "to": 9402288}, {"arrows": "to", "from": 9607235, "to": 9402326}, {"arrows": "to", "from": 9607235, "to": 9403313}, {"arrows": "to", "from": 9607235, "to": 9405207}, {"arrows": "to", "from": 9607235, "to": 9405410}, {"arrows": "to", "from": 9607235, "to": 9406251}, {"arrows": "to", "from": 9607235, "to": 9409440}, {"arrows": "to", "from": 9607235, "to": 9502346}, {"arrows": "to", "from": 9607235, "to": 9503486}, {"arrows": "to", "from": 9607235, "to": 9503492}, {"arrows": "to", "from": 9607235, "to": 9506476}, {"arrows": "to", "from": 9607235, "to": 9507283}, {"arrows": "to", "from": 9607235, "to": 9602262}, {"arrows": "to", "from": 9607235, "to": 9603314}, {"arrows": "to", "from": 9607235, "to": 9604225}, {"arrows": "to", "from": 9607235, "to": 9605201}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "layout": {
+        "hierarchical": {
+            "blockShifting": true,
+            "edgeMinimization": true,
+            "enabled": true,
+            "levelSeparation": 150,
+            "parentCentralization": true,
+            "sortMethod": "hubsize",
+            "treeSpacing": 200
+        },
+        "improvedLayout": true,
+        "randomSeed": 0
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
