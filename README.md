@@ -74,7 +74,7 @@ This involves exploring the High-energy physics citation network. Arxiv HEP-PH (
 - Extending the comparison with a more diverse set of algorithms, including state-of-the-art methods for network embedding, would enhance the overall evaluation. Showcase the particular weakness or the graphs where it can be inefficient
 
 
-
+## Task 1
 
 ## Analysis
 
