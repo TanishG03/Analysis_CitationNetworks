@@ -1,10 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-import networkx.algorithms.community as community
 from datetime import datetime
-import networkx.algorithms.community as nx_comm
 from community import community_louvain
-
 
 def load_citation_network(file_path, date_file_path):
     graph = nx.Graph()
@@ -38,6 +35,7 @@ def load_citation_network(file_path, date_file_path):
                 graph.add_edge(source, target)
 
     return graph
+
 def plot_communities(graph, partition, pos, degree_threshold, title='', ax=None):
     node_colors = [partition[node] for node in graph.nodes]
 
@@ -62,41 +60,75 @@ def plot_communities(graph, partition, pos, degree_threshold, title='', ax=None)
     ax.set_title(title)
     plt.show()
 
-def temporal_community_detection(citation_network, start_year, end_year, step=1):
+def calculate_community_statistics(partition):
+    community_sizes = [len([node for node, part in partition.items() if part == community]) for community in set(partition.values())]
+    total_nodes = len(partition)
+
+    largest_community_size = max(community_sizes)
+    largest_community_percentage = (largest_community_size / total_nodes) * 100
+
+    independent_nodes = total_nodes - sum(community_sizes)
+    independent_percentage = (independent_nodes / total_nodes) * 100
+
+    print(f"Total nodes: {total_nodes}")
+    print(f"Largest community size: {largest_community_size} ({largest_community_percentage:.2f}%)")
+    print(f"Independent nodes: {independent_nodes} ({independent_percentage:.2f}%)")
+
+    return community_sizes
+
+def calculate_top_community_percentage(community_sizes, top_n=3):
+    top_community_sizes = sorted(community_sizes, reverse=True)[:top_n]
+    total_nodes_in_top_communities = sum(top_community_sizes)
+    total_nodes = sum(community_sizes)
+    
+    top_community_percentage = (total_nodes_in_top_communities / total_nodes) * 100
+
+    print(f"\nTop {top_n} Community Sizes: {top_community_sizes}")
+    print(f"Percentage of Nodes in Top {top_n} Communities: {top_community_percentage:.2f}%")
+
+def temporal_community_cumulation(citation_network, start_year, end_year, step=1):
+    all_partitions = {}  # Dictionary to store partitions for each year
+
     for year in range(start_year, end_year + 1, step):
         start_date = datetime(year, 1, 1)
         end_date = datetime(year + step, 1, 1)
+        
         # Filter nodes with non-empty date information
         filtered_nodes = [node for node in citation_network.nodes if
                           citation_network.nodes[node]['date'] and start_date <= datetime.strptime(
                               citation_network.nodes[node]['date'], "%Y-%m-%d") < end_date]
-        # print(f"Year: {year}-{year + step - 1}, Nodes: {len(filtered_nodes)}")
+        
+        # Create a subgraph for the current time frame
         filtered_network = citation_network.subgraph(filtered_nodes)
-        degree_threshold = 0
-        filtered_degrees = dict(filtered_network.degree())
 
         # Louvain community detection
-        # Louvain community detection
         partition = community_louvain.best_partition(filtered_network, resolution=1.0, randomize=False)
+        
+        # Store the partition for the current year
+        all_partitions[year] = partition
 
         pos = nx.spring_layout(filtered_network, seed=13648)
 
         # Plot communities for each temporal slice
-        plot_communities(filtered_network, partition, pos, degree_threshold,
+        plot_communities(filtered_network, partition, pos, 0,
                          title=f'Communities (Louvain Algorithm) - {year}-{year + step - 1}')
 
-def main():
+        # Calculate and print community statistics
+        print(f"\nCommunity Statistics for {year}-{year + step - 1}:")
+        community_sizes = calculate_community_statistics(partition)
+
+        # Calculate and print top community percentage
+        calculate_top_community_percentage(community_sizes, top_n=3)
+
+if __name__ == "__main__":
     dataset_path = "./Datasets/cit-HepPh.txt/sample_10000.txt"
     date_file_path = "./Datasets/cit-HepPh-dates.txt"
 
     try:
         citation_network = load_citation_network(dataset_path, date_file_path)
 
-        # Analyze temporal slices and perform community detection
-        temporal_community_detection(citation_network, 1994, 2000, step=3)
+        # Analyze temporal slices and perform community detection with cumulation
+        temporal_community_cumulation(citation_network, 1994, 2001, step=3)
 
     except Exception as e:
         print("Error:", str(e))
-
-if __name__ == "__main__":
-    main()
