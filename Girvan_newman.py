@@ -1,7 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-import community
 from datetime import datetime
+from community import community_louvain
 from networkx.algorithms.community.centrality import girvan_newman
 
 def load_citation_network(file_path, date_file_path):
@@ -37,108 +37,143 @@ def load_citation_network(file_path, date_file_path):
 
     return graph
 
-def detect_communities_girvan_newman(graph):
-    # Use Girvan-Newman algorithm to detect communities
-    communities_generator = girvan_newman(graph)
-    # Choose the desired number of communities or stop criterion
-    desired_communities = 2  # You can adjust this number
-    communities = next(communities_generator)
-    for i in range(desired_communities - 1):
-        communities = next(communities_generator)
-    return communities
+def plot_communities(graph, partition, pos, degree_threshold, title='', ax=None):
+    node_colors = [partition[node] for node in graph.nodes]
 
-def plot_girvan_newman_communities(graph, communities, pos, degree_threshold):
-    node_colors = [0] * graph.number_of_nodes()
-    
-    for idx, comm in enumerate(communities):
-        for node in comm:
-            node_colors[node] = idx + 1
+    if not node_colors:
+        print("No nodes to plot.")
+        return
 
-    plt.figure(figsize=(10, 8))
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(10, 8))
+
     cmap = plt.cm.get_cmap("rainbow", len(set(node_colors)))
-    nx.draw_networkx_nodes(graph, pos, node_size=50, node_color=node_colors, cmap=cmap, edgecolors='k', linewidths=0.5)
-    nx.draw_networkx_edges(graph, pos, alpha=0.1)
-    plt.xticks([])
-    plt.yticks()
-    
+    nx.draw_networkx_nodes(graph, pos, node_size=50, node_color=node_colors, cmap=cmap, ax=ax, edgecolors='k', linewidths=0.5)
+    nx.draw_networkx_edges(graph, pos, alpha=0.1, ax=ax)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=min(node_colors), vmax=max(node_colors)))
     sm._A = []  # Fix for ScalarMappable
-    cbar = plt.colorbar(sm, orientation='vertical', fraction=0.02, pad=0.1)
+    cbar = plt.colorbar(sm, orientation='vertical', fraction=0.02, pad=0.1, ax=ax)
     cbar.set_label(f'Community')
-    
-    plt.title(f'Communities (Girvan-Newman Algorithm) - Degree >= {degree_threshold}')
+
+    ax.set_title(title)
     plt.show()
 
+def calculate_community_statistics(partition):
+    community_sizes = [len([node for node, part in partition.items() if part == community]) for community in set(partition.values())]
+    total_nodes = len(partition)
 
-def analyze_temporal_slices(citation_network, start_year, end_year, step=1):
+    largest_community_size = max(community_sizes)
+    largest_community_percentage = (largest_community_size / total_nodes) * 100
+
+    independent_nodes = total_nodes - sum(community_sizes)
+    independent_percentage = (independent_nodes / total_nodes) * 100
+
+    print(f"Total nodes: {total_nodes}")
+    print(f"Largest community size: {largest_community_size} ({largest_community_percentage:.2f}%)")
+    print(f"Independent nodes: {independent_nodes} ({independent_percentage:.2f}%)")
+
+    return community_sizes
+
+def calculate_top_community_percentage(community_sizes, top_n=3):
+    top_community_sizes = sorted(community_sizes, reverse=True)[:top_n]
+    total_nodes_in_top_communities = sum(top_community_sizes)
+    total_nodes = sum(community_sizes)
+    
+    top_community_percentage = (total_nodes_in_top_communities / total_nodes) * 100
+
+    print(f"\nTop {top_n} Community Sizes: {top_community_sizes}")
+    print(f"Percentage of Nodes in Top {top_n} Communities: {top_community_percentage:.2f}%")
+
+def temporal_community_cumulation_louvain(citation_network, start_year, end_year, step=1):
+    all_partitions = {}  # Dictionary to store partitions for each year
+
     for year in range(start_year, end_year + 1, step):
         start_date = datetime(year, 1, 1)
         end_date = datetime(year + step, 1, 1)
-
-        # Filter nodes with non-empty date information
-        filtered_nodes = [node for node in citation_network.nodes if citation_network.nodes[node]['date'] and start_date <= datetime.strptime(citation_network.nodes[node]['date'], "%Y-%m-%d") < end_date]
         
+        # Filter nodes with non-empty date information
+        filtered_nodes = [node for node in citation_network.nodes if
+                          citation_network.nodes[node]['date'] and start_date <= datetime.strptime(
+                              citation_network.nodes[node]['date'], "%Y-%m-%d") < end_date]
+        
+        # Create a subgraph for the current time frame
         filtered_network = citation_network.subgraph(filtered_nodes)
-        # degree_threshold = 10
-        filtered_degrees = dict(filtered_network.degree())
 
-        # Count the number of common edges within each year
-        common_edges = 0
-        for edge in filtered_network.edges:
-            if edge[0] in filtered_nodes and edge[1] in filtered_nodes:
-                common_edges += 1
+        # Louvain community detection
+        partition = community_louvain.best_partition(filtered_network, resolution=1.0, randomize=False)
+        
+        # Store the partition for the current year
+        all_partitions[year] = partition
 
-        print(f"Time Frame: {year}-{year+step-1}, Number of Nodes: {filtered_network.number_of_nodes()}, Number of Edges: {filtered_network.number_of_edges()}, Number of Common Edges: {common_edges}")
-    
-        # plot2(filtered_degrees, filtered_network, degree_threshold, title=f'Citation Network - {year}-{year+step-1}')
-    return filtered_network
+        pos = nx.spring_layout(filtered_network, seed=13648)
 
-def analyze_connected_citations(citation_network, start_year, end_year):
-    start_date = datetime(start_year, 1, 1)
-    end_date = datetime(end_year + 1, 1, 1)  # Adding 1 to the end year to include citations up to the end year
+        # Plot communities for each temporal slice
+        plot_communities(filtered_network, partition, pos, 0,
+                         title=f'Communities (Louvain Algorithm) - {year}-{year + step - 1}')
 
-    # Filter nodes with non-empty date information within the specified time frame
-    filtered_nodes = [node for node in citation_network.nodes if citation_network.nodes[node]['date'] and start_date <= datetime.strptime(citation_network.nodes[node]['date'], "%Y-%m-%d") < end_date]
-    filtered_network = citation_network.subgraph(filtered_nodes)
+        # Calculate and print community statistics
+        print(f"\nCommunity Statistics for {year}-{year + step - 1}:")
+        community_sizes = calculate_community_statistics(partition)
 
-    # Create a dictionary mapping node identifiers to their respective year names
-    year_labels = {node: datetime.strptime(citation_network.nodes[node]['date'], "%Y-%m-%d").strftime("%Y") for node in filtered_network.nodes}
+        # Calculate and print top community percentage
+        calculate_top_community_percentage(community_sizes, top_n=3)
 
-    # Get unique years and assign a color to each year
-    unique_years = list(set(year_labels.values()))
-    color_map = plt.cm.get_cmap('tab10', len(unique_years))
+def temporal_community_cumulation_girvan_newman(citation_network, start_year, end_year, step=1):
+    all_partitions = {}  # Dictionary to store partitions for each year
 
-    # Assign colors to nodes based on years
-    node_colors = [color_map(unique_years.index(year)) for year in year_labels.values()]
-    return filtered_network
+    for year in range(start_year, end_year + 1, step):
+        start_date = datetime(year, 1, 1)
+        end_date = datetime(year + step, 1, 1)
+        
+        # Filter nodes with non-empty date information
+        filtered_nodes = [node for node in citation_network.nodes if
+                          citation_network.nodes[node]['date'] and start_date <= datetime.strptime(
+                              citation_network.nodes[node]['date'], "%Y-%m-%d") < end_date]
+        
+        # Create a subgraph for the current time frame
+        filtered_network = citation_network.subgraph(filtered_nodes)
 
-def main():
-    dataset_path = "./Datasets/cit-HepPh.txt/sample_5000.txt"
+        # Girvan-Newman community detection
+        communities_generator = girvan_newman(filtered_network)
+        # Choose the desired number of communities or stop criterion
+        desired_communities = 2  # You can adjust this number
+        communities = next(communities_generator)
+        for i in range(desired_communities - 1):
+            communities = next(communities_generator)
+        partition = {node: idx for idx, comm in enumerate(communities) for node in list(comm)}
+
+        # Store the partition for the current year
+        all_partitions[year] = partition
+
+        pos = nx.spring_layout(filtered_network, seed=13648)
+
+        # Plot communities for each temporal slice
+        plot_communities(filtered_network, partition, pos, 0,
+                         title=f'Communities (Girvan-Newman Algorithm) - {year}-{year + step - 1}')
+
+        # Calculate and print community statistics
+        print(f"\nCommunity Statistics for {year}-{year + step - 1}:")
+        community_sizes = calculate_community_statistics(partition)
+
+        # Calculate and print top community percentage
+        calculate_top_community_percentage(community_sizes, top_n=3)
+
+if __name__ == "__main__":
+    # print("Temporal Community Detection and Cumulation")
+    dataset_path = "./Datasets/cit-HepPh.txt/sample_10000.txt"
     date_file_path = "./Datasets/cit-HepPh-dates.txt"
 
     try:
         citation_network = load_citation_network(dataset_path, date_file_path)
-        degree_threshold = 0
-        filtered_nodes = [node for node in citation_network.nodes if citation_network.degree(node) >= degree_threshold]
-        filtered_network_degree = citation_network.subgraph(filtered_nodes)
-        filtered_degrees = dict(filtered_network_degree.degree())
-        
-        # Analyze temporal slices
-        temporal_filtered_network = analyze_temporal_slices(citation_network, 1998, 1998, step=1)
-        
-        # Analyze connected citations
-        connected_filtered_network = analyze_connected_citations(filtered_network_degree, 1998, 1998)
-        # Girvan-Newman community detection
-        communities_girvan_newman = next(girvan_newman(connected_filtered_network))
-        partition_girvan_newman = {node: idx for idx, comm in enumerate(communities_girvan_newman) for node in list(comm)}
-        
-        pos_girvan_newman = nx.spring_layout(connected_filtered_network, seed=13648)
 
-        # Plot communities for Girvan-Newman
-        plot_girvan_newman_communities(connected_filtered_network, communities_girvan_newman, pos_girvan_newman, degree_threshold)
+        # Analyze temporal slices and perform Louvain community detection with cumulation
+        # temporal_community_cumulation_louvain(citation_network, 1994, 2001, step=3)
+
+        # Analyze temporal slices and perform Girvan-Newman community detection with cumulation
+        temporal_community_cumulation_girvan_newman(citation_network, 1995, 2001, step=3)
 
     except Exception as e:
         print("Error:", str(e))
-
-if __name__ == "__main__":
-    main()

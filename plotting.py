@@ -60,15 +60,30 @@ import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 
 # Data from the provided statistics
-years = ["1990-1992", "1993-1995", "1994-1996", "1997-1999", "1998-2001", "2000-2002"]
-percent_nodes_top3 = [4.44, 5.99, 10.46, 23.08, 38.44, 35.53]
+# years = ["1990-1992", "1993-1995", "1994-1996", "1997-1999", "1998-2001", "2000-2002"]
+# percent_nodes_top3 = [4.44, 5.99, 10.46, 23.08, 38.44, 35.53]
+
+# # Plotting the bar graph
+# plt.figure(figsize=(12, 6))
+# plt.bar(years, percent_nodes_top3, color='skyblue')
+# plt.title('Percentage of Nodes in Top 3 Communities for Each Year Range')
+# plt.xlabel('Year Range')
+# plt.ylabel('Percentage of Nodes in Top 3 Communities')
+# plt.ylim(0, 45)  # Adjust the y-axis limit if needed
+# plt.grid(axis='y', linestyle='--', alpha=0.7)
+# plt.show()
+
+import matplotlib.pyplot as plt
+
+# Data for Community Statistics
+years = ['1993-1995', '1994-1996', '1995-1997', '1996-1998', '1997-1999', '1998-2000', '1999-2001', '2000-2002', '2001-2003']
+top_3_community_percentages = [36.46, 44.46, 39.27, 57.50, 59.53, 65.34, 79.78, 77.41, 76.34]
 
 # Plotting the bar graph
-plt.figure(figsize=(12, 6))
-plt.bar(years, percent_nodes_top3, color='skyblue')
-plt.title('Percentage of Nodes in Top 3 Communities for Each Year Range')
-plt.xlabel('Year Range')
+plt.figure(figsize=(10, 6))
+plt.bar(years, top_3_community_percentages, color='lightcoral')
+plt.xlabel('Year Slices')
 plt.ylabel('Percentage of Nodes in Top 3 Communities')
-plt.ylim(0, 45)  # Adjust the y-axis limit if needed
-plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.title('Percentage of Nodes in Top 3 Communities for Different Year Slices')
+plt.ylim(0, 90)  # Adjust the y-axis limit if needed
 plt.show()
