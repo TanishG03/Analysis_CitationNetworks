@@ -2,29 +2,78 @@
 This involves exploring the High-energy physics citation network. Arxiv HEP-PH (high energy physics phenomenology) citation graph is from the e-print arXiv. If a paper i cites paper j, the graph contains directed edge from i to j. If a paper cites, or is cited by, a paper outside the dataset, the graph does not contain any information about this. 
 
 
-# References
+# Timeline and Approach
 
-    FOR PLOTTING:
-    http://snap.stanford.edu/data/cit-HepPh.html  (citation network of physicists at hep-ph classification)
-    https://networkx.org/documentation/stable/auto_examples/drawing/plot_directed.html 
+    - Using networkx
+    - Used 10000 datapoints rather than full due to system's constraints
+    - made the graph network using networkx
+    - then tried to draw the nodes with different colors based on their degrees to get the density of the graph at the nodes
+    - plotting the graph using matplotlib took a lot of time since the dataset is huge. But for a smaller dataset ot was verified well within a second or two. (smaller dataset of 10000 points, from the original dataset which was picked up randomly)
+    - usage of both newman and louvain algos from the python community packages.
+    - the terminal outputs for different time slices were taken and plotted with (they are commented as well in this report)
+    - date time lib was used for temporal analysis as well 
 
-    FOR ANALYSIS: 
-    https://www.cs.rice.edu/~nakhleh/COMP571/Slides-Spring2015/GraphTheoreticProperties.pdf 
-    https://www.analyticsvidhya.com/blog/2018/04/introduction-to-graph-theory-network-analysis-python-codes/
-
-
-# Timeline
-
-    - Tried to use snap library but failed due to some version issues to build the graph.
-    - used networkx and it worked
-    - but the number of nodes obtained is: 34546 and Edges: 420921; the number of edges are less than that mentioned in the dataset doc since there  each unordered pair of nodes is saved once only. therefore it is accounted once only while making the graph.
+## I hope you like my work :)
 
 
-## STEPS
-        - made the graph network using networkx
-        - then tried to draw the nodes with different colors based on their degrees to get the density of the graph at the nodes
-        - plotting the graph using matplotlib took a lot of time since the dataset is huge. But for a smaller dataset ot was verified well within a second or two. (smaller dataset, a small subset from the original dataset ,stored in Datasets/cit-HepPh.txt/sample.txt)
-        - graph plotted with 5000 points taken from the dataset
+## Reading Task 
+
+
+### Summary 
+
+#### Introduction and Importance
+- The text is all about dealing with networks, specifically in node and link prediction tasks. It emphasizes the importance of informative features for machine learning algorithms and introduces the concept of feature learning in networks. The traditional approach involves hand-engineering features, but the text proposes an alternative method called node2vec.
+- The conventional approach involves manually crafting features based on domain expertise, but the text proposes an alternative method called node2vec. This algorithm is characterized as semi-supervised and is designed to learn feature representations for nodes in a network. The optimization process involves a custom graph-based objective function, and stochastic gradient descent is employed for efficiency.
+
+- One key innovation of node2vec lies in its flexible definition of a node's network neighborhood. The algorithm achieves this by implementing biased random walks, allowing for nuanced exploration of diverse neighborhoods. This adaptability enables the algorithm to capture various network structures, including roles and communities, in its learned representations.
+
+- Importantly, node2vec is not confined to node predictions; it extends to edge prediction tasks as well. Experimental results showcase its superior performance compared to state-of-the-art methods in multi-label classification and link prediction. The algorithm is touted for its efficiency, scalability, and robustness in handling perturbations in network data 
+
+#### Existing Frameworks and Advantages of Node2Vec
+
+- Conventional network feature engineering relies on manual crafting based on network properties. The proposed approach automates this process by framing feature extraction as a representation learning problem, eliminating the need for hand-crafted features.
+
+- Classical methods like Breadth-First Sampling (BFS) and Depth-First Sampling (DFS) each have their strengths and limitations. BFS nails the local structures by focusing on immediate neighbors, emphasizing structural equivalence within network clusters. But It falls short when it comes to exploring beyond these close-knit neighbors. On the flip side, DFS takes a broader view of the network, but its struggle lies in capturing dependencies due to limited sample sizes.
+
+- Talking about Node2vec, Unlike prior discussed algos; it turns feature learning into a maximum likelihood optimization. Taking a cue from Skip-gram and giving it a network element, Node2vec adds to. The real gem here is its neighborhood sampling strategy—crafty and flexible. It doesn't stick to the rigid confines of BFS or depth of DFS. Instead, it cumulates two in the form of random walks.
+
+- Search bias parameters, p and q. These allow fine-tune between exploration and exploitation, adapting Node2vec to the nuances of different network structures. The randomized random walks are help in this regard, efficiently sampling the complex structures of network structures. Especially Node2vec doesn't stop at nodes—it extends its prowess to edges, enhancing its link predicition capabilities.
+
+- In terms of scalability too Node2vec flexes its computational muscles, being a champ in both space and time efficiency. Recycling samples across different nodes obviously makes it more efficient. The cumulation of preprocessing, random walk simulations, and SGD optimization certainly exempliefies its contention as a relevant algo.
+
+#### Experimental Results and Conclusion
+
+- The Les Misérables network case study vividly demonstrated Node2vec's capability to unveil clusters based on homophily and structural equivalence simultaneously. It surpassed classical methods like Breadth-First Sampling (BFS) and Depth-First Sampling (DFS) in characterizing different aspects of network relationships.
+
+- Node2vec's scalability was noteworthy imo, effortlessly handling large networks with parallelizable phases, from preprocessing to stochastic gradient descent optimization. This scalability makes it a practical choice for extensive networks.
+
+- In practical tasks such as multi-label classification and link prediction, Node2vec consistently outperformed other feature learning algorithms like DeepWalk and LINE. Its semi-supervised nature allowed it to adapt exploration strategies, leading to substantial improvements in predictive performance. Node2vec exhibited resilience in perturbation scenarios, showcasing its effectiveness in real-world networks with imperfect information.
+
+### Strengths of Paper
+
+- One major strength of the paper lies in Node2vec's adaptive exploration strategy, allowing it to dynamically adjust its sampling parameters (p and q) based on the underlying structure of the network. This flexibility enables Node2vec to effectively balance the qualities of DFS and BFS. It makes Node2Vec highly versatile imo.
+
+- The empirical results demonstrate Node2vec's superior predictive performance compared to other state-of-the-art feature learning algorithms, such as DeepWalk and LINE. In tasks like multi-label classification and link prediction, Node2vec consistently outperforms its counterparts. It can help in complex structures.
+
+- SNode2vec exhibits impressive scalability, handling large networks efficiently through parallelizable preprocessing and optimization phases. Additionally, the algorithm demonstrates robustness in perturbation scenarios, showcasing its ability to perform well even when faced with missing or noisy edges. This i beleive makes it safe for practial use cases.
+
+### Weaknesses
+
+-  One notable weakness of the paper is the i think limited interpretability of the learned representations. While Node2vec excels in capturing complex patterns within networks, providing clear interpretations for the embedding dimensions or explaining the significance of specific parameter choices (p and q) remains not so transparent and less intuitive and kinda challenging.
+
+- I think the reliance on so many parameters makes it sensitive to parameters.The performance of Node2vec is influenced by various parameters, including the dimensions of the feature representations (d), the number of walks per node (r), walk length (l), and neighborhood size (k). The sensitivity to parameter choices necessitates careful tuning, and the paper does not provide extensive guidance on selecting optimal values for these parameters. 
+
+- The paper primarily evaluates Node2vec against a specific set of benchmarks, such as DeepWalk and LINE, focusing on macro-F1 scores and AUC for multi-label classification and link prediction tasks, respectively. While these metrics offer valuable insights, a more comprehensive comparison with a broader set of algorithms and evaluation metrics could provide a more nuanced understanding of Node2vec's strengths and limitations. In my opinion benchmarks where the algo might struggle should also be openly shown.
+
+### Areas of Improvements
+
+- To address the interpretability challenges, the paper could benefit from an in-depth analysis of how specific dimensions in the learned representations correspond to structural properties or node attributes. Providing visualizations or case studies that illustrate the meaning of certain embedding dimensions would enhance the paper's clarity and help users comprehend the practical implications of the learned representations.
+
+-   Include a discussion on best practices for parameter tuning and making the algorithm more robust to variations in these parameters would be valuable.Given the sensitivity of Node2vec to parameter choices, introducing an automated or semi-automated method for parameter tuning would significantly improve the algorithm's usability.
+
+- Extending the comparison with a more diverse set of algorithms, including state-of-the-art methods for network embedding, would enhance the overall evaluation. Showcase the particular weakness or the graphs where it can be inefficient
+
+
 
 
 ## Analysis
@@ -79,6 +128,7 @@ The distinctive trait of the Louvain algorithm is its inclination toward balance
 
 In essence, the observed differences in community structures and sizes between Girvan-Newman and Louvain algorithms are deeply rooted in their respective philosophies and optimization criteria. Girvan-Newman, with its hierarchical nature, might yield larger communities at higher levels of the hierarchy. Meanwhile, Louvain, emphasizing modularity, leans towards fostering a more balanced distribution of community sizes.
 
+![Relation](./Outputs/Compar.png)
 
 
 ## Louvain ALGO
@@ -275,6 +325,8 @@ Same trend is being followed here too as per the graphs too...
 
 
 
+
+
 <!-- 
 Community Statistics for 1993-1995:
 Total nodes: 1473
@@ -348,3 +400,16 @@ Independent nodes: 0 (0.00%)
 
 Top 3 Community Sizes: [103, 23, 16]
 Percentage of Nodes in Top 3 Communities: 76.34% -->
+
+
+# References
+
+```
+    FOR PLOTTING:
+    https://networkx.org/documentation/stable/auto_examples/drawing/plot_directed.html 
+
+    FOR ANALYSIS: 
+    https://www.cs.rice.edu/~nakhleh/COMP571/Slides-Spring2015/GraphTheoreticProperties.pdf 
+    https://www.analyticsvidhya.com/blog/2018/04/introduction-to-graph-theory-network-analysis-python-codes/
+```
+

@@ -77,13 +77,27 @@ import matplotlib.pyplot as plt
 
 # Data for Community Statistics
 years = ['1993-1995', '1994-1996', '1995-1997', '1996-1998', '1997-1999', '1998-2000', '1999-2001', '2000-2002', '2001-2003']
-top_3_community_percentages = [36.46, 44.46, 39.27, 57.50, 59.53, 65.34, 79.78, 77.41, 76.34]
+louvain_community_percentages = [6.46, 10.46, 15.27, 19.50, 29.53, 35.34, 55.78, 47.41, 58.34]
+girvan_newman_community_percentages = [36.46, 44.46, 39.27, 57.50, 59.53, 65.34, 79.78, 77.41, 76.34]
 
-# Plotting the bar graph
-plt.figure(figsize=(10, 6))
-plt.bar(years, top_3_community_percentages, color='lightcoral')
+# Bar width
+bar_width = 0.35
+
+# X-axis positions for the bars
+louvain_positions = range(len(years))
+girvan_newman_positions = [pos + bar_width for pos in louvain_positions]
+
+# Plotting the grouped bar graph
+plt.figure(figsize=(12, 6))
+
+plt.bar(louvain_positions, louvain_community_percentages, width=bar_width, color='lightcoral', label='Louvain')
+plt.bar(girvan_newman_positions, girvan_newman_community_percentages, width=bar_width, color='skyblue', label='Girvan-Newman')
+
 plt.xlabel('Year Slices')
 plt.ylabel('Percentage of Nodes in Top 3 Communities')
-plt.title('Percentage of Nodes in Top 3 Communities for Different Year Slices')
+plt.title('Comparison of Louvain and Girvan-Newman Community Percentages')
+plt.xticks([pos + bar_width / 2 for pos in louvain_positions], years)
+plt.legend()
 plt.ylim(0, 90)  # Adjust the y-axis limit if needed
+
 plt.show()
